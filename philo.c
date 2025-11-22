@@ -132,16 +132,33 @@ void	*monitor(void *arg)
 int	create_all_thread(t_data *data)
 {
 	int	i;
+	int	j;
 
 	i = 0;
 	while (i < data->nb_of_philo)
 	{
 		if (pthread_create(&data->philo_th[i], NULL, &routine, &data->philo[i]) != 0)
+		{
+			j = 0;
+			while (j < i)
+			{
+				pthread_join(data->philo_th[j], NULL);
+				j++;
+			}
 			return (0);
+		}
 		i++;
 	}
-	if (pthread_create(&data->monitor_th, NULL, &monitor, &data) != 0)
+	if (pthread_create(&data->monitor_th, NULL, &monitor, data) != 0)
+	{
+		j = 0;
+		while (j < data->nb_of_philo)
+		{
+			pthread_join(data->philo_th[j], NULL);
+			j++;
+		}
 		return (0);
+	}
 	return (1);
 }
 
@@ -152,12 +169,10 @@ int	join_all_thread(t_data *data)
 	i = 0;
 	while (i < data->nb_of_philo)
 	{
-		if (pthread_join(data->philo_th[i], NULL) != 0)
-			return (0);
+		pthread_join(data->philo_th[i], NULL);
 		i++;
 	}
-	if (pthread_join(data->monitor_th, NULL) != 0)
-		return (0);
+	pthread_join(data->monitor_th, NULL);
 	return (1);
 }
 
@@ -181,8 +196,7 @@ int	main(int argc, char **argv)
 	init_philo(&data);
 	if (!create_all_thread(&data))
 		return (destroy_mutex(&data), destroy_data(&data), 1);
-	if (!join_all_thread(&data))
-		return (destroy_mutex(&data), destroy_data(&data), 1);
+	join_all_thread(&data);
 	destroy_mutex(&data);
 	destroy_data(&data);
 	return (0);
