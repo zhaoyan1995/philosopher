@@ -1,0 +1,61 @@
+#ifndef PHILO_H
+#define PHILO_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define INT_MAX_STR "2147483647"
+#define LL_MAX_STR "9223372036854775807"
+
+typedef	struct	s_data	t_data;
+typedef	struct	s_philo	t_philo;
+
+typedef	struct	s_data
+{
+	int	nb_of_philo;
+	int	nb_of_eat;
+	long long	time_to_die;
+	long long	time_to_eat;
+	long long	time_to_sleep;
+	bool	end_of_program;
+	t_philo *philo;
+	pthread_mutex_t	monitor_mutex;
+	pthread_mutex_t	*fork;
+	pthread_t	*philo_th;
+	pthread_t	monitor_th;
+}	t_data;
+
+typedef	struct	s_philo
+{
+	int	id;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	int	left_fork_id;
+	int	right_fork_id;
+	long long 	last_meal_time;
+	t_data	*data;
+}	t_philo;
+
+//parser.c
+int	is_digit_argv(char *argv);
+int	check_argv(int argc, char **argv);
+bool	is_all_zero(char *argv);
+
+//parser_utils.c
+int	ft_strlen(char *str);
+bool	is_int_overflow(char *argv);
+bool	safe_atoi(char *argv, int *output);
+
+//parser_utils2.c
+bool	safe_atoll(char *argv, long long *output);
+bool	is_llong_overflow(char *argv);
+
+//get_time.c
+long long	current_time_ms(void);
+
+#endif
