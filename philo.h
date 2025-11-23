@@ -22,9 +22,11 @@ typedef	struct	s_data
 	long long	time_to_die;
 	long long	time_to_eat;
 	long long	time_to_sleep;
+	long long	start_time;
 	bool	end_of_program;
 	t_philo *philo;
 	pthread_mutex_t	monitor_mutex;
+	pthread_mutex_t	end_mutex;
 	pthread_mutex_t	*fork;
 	pthread_t	*philo_th;
 	pthread_t	monitor_th;
@@ -35,6 +37,7 @@ typedef	struct	s_philo
 	int	id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
+	pthread_mutex_t	meal_lock;
 	int	left_fork_id;
 	int	right_fork_id;
 	long long 	last_meal_time;
