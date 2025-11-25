@@ -25,7 +25,7 @@ typedef	struct	s_data
 	long long	start_time;
 	bool	end_of_program;
 	t_philo *philo;
-	pthread_mutex_t	monitor_mutex;
+	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	end_mutex;
 	pthread_mutex_t	*fork;
 	pthread_t	*philo_th;
@@ -60,5 +60,11 @@ bool	is_llong_overflow(char *argv);
 
 //get_time.c
 long long	current_time_ms(void);
+
+//check_end_of_program.c
+bool	mutex_is_end(t_philo *philo);
+void	mutex_update_last_meal_time(t_philo *philo);
+void	mutex_update_end_of_program(t_data *data);
+long long	mutex_read_last_meal_time(t_philo *philo);
 
 #endif

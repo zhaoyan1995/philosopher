@@ -51,7 +51,7 @@ void	init_all_mutex(t_data *data)
 		pthread_mutex_init(&data->philo[i].meal_lock, NULL);
 		i++;
 	}
-	pthread_mutex_init(&data->monitor_mutex, NULL);
+	pthread_mutex_init(&data->print_mutex, NULL);
 	pthread_mutex_init(&data->end_mutex, NULL);
 }
 
@@ -112,7 +112,7 @@ void	destroy_mutex(t_data *data)
 		pthread_mutex_destroy(&data->philo[i].meal_lock);
 		i++;
 	}
-	pthread_mutex_destroy(&data->monitor_mutex);
+	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->end_mutex);
 }
 
@@ -124,39 +124,69 @@ void	print_data(t_philo *philo)
 	printf("last meal time = %lld\n", philo->last_meal_time);
 }
 
-void	take_forks(t_philo *philo)
+void	safe_print(t_philo *philo, char *message)
 {
 	long long	timestamp;
-	bool		end_of_program;
 
-	pthread_mutex_lock(&philo->data->end_mutex);
-	end_of_program = philo->data->end_of_program;
-	pthread_mutex_unlock(&philo->data->end_mutex);
-	if (end_of_program)
+	timestamp = current_time_ms() - philo->data->start_time;
+	pthread_mutex_lock(&philo->data->print_mutex);
+	if (!philo->data->end_of_program)
+		printf("%lld %d %s\n", timestamp, philo->id, message);
+	pthread_mutex_unlock(&philo->data->print_mutex);
+}
+
+void	safe_print_die(t_philo *philo, char *message)
+{
+	long long	timestamp;
+
+	timestamp = current_time_ms() - philo->data->start_time;
+	pthread_mutex_lock(&philo->data->print_mutex);
+	if (philo->data->end_of_program)
+		printf("%lld %d %s\n", timestamp, philo->id, message);
+	pthread_mutex_unlock(&philo->data->print_mutex);
+}
+
+void	take_forks(t_philo *philo)
+{
+	if (mutex_is_end(philo))
 		return ;
 	if (philo->left_fork_id < philo->right_fork_id)
 	{
 		pthread_mutex_lock(philo->left_fork);
-		timestamp = current_time_ms() - philo->data->start_time;
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
+		if (mutex_is_end(philo))
+		{
+			pthread_mutex_unlock(philo->left_fork);
 			return ;
-		printf("%lld %d has taken a fork\n", timestamp, philo->id);
+		}
+		safe_print(philo, "has taken a fork");
+
 		pthread_mutex_lock(philo->right_fork);
-		timestamp = current_time_ms() - philo->data->start_time;
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
+		if (mutex_is_end(philo))
+		{
+			pthread_mutex_unlock(philo->left_fork);
+			pthread_mutex_unlock(philo->right_fork);
 			return ;
-		printf("%lld %d has taken a fork\n", timestamp, philo->id);
+		}
+		safe_print(philo, "has taken a fork");
 	}
 	else
 	{
 		pthread_mutex_lock(philo->right_fork);
+		if (mutex_is_end(philo))
+		{
+			pthread_mutex_unlock(philo->right_fork);
+			return ;
+		}
+		safe_print(philo, "has taken a fork");
+
 		pthread_mutex_lock(philo->left_fork);
+		if (mutex_is_end(philo))
+		{
+			pthread_mutex_unlock(philo->right_fork);
+			pthread_mutex_unlock(philo->left_fork);
+			return ;
+		}
+		safe_print(philo, "has taken a fork");
 	}
 }
 
@@ -177,16 +207,12 @@ void	put_down_forks(t_philo *philo)
 void	smart_sleep(long long duration, t_philo *philo)
 {
 	long long	start;
-	bool	end_of_program;
 
 	start = current_time_ms();
 	while (current_time_ms() - start < duration)
 	{
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
-			break ;
+		if (mutex_is_end(philo))
+			return ;
 		usleep(500);
 	}
 }
@@ -194,60 +220,33 @@ void	smart_sleep(long long duration, t_philo *philo)
 void	*routine(void *arg)
 {
 	t_philo *philo;
-	long long	timestamp;
-	bool	end_of_program;
 
 	philo = (t_philo *)arg;
-	//print_data(philo);
 	if (philo->data->nb_of_philo == 1)
 		return (NULL);
 	while (1)
 	{
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
-			break ;
+		if (mutex_is_end(philo))
+			break;
 		take_forks(philo);
-		pthread_mutex_lock(&philo->meal_lock);
-		philo->last_meal_time = current_time_ms();
-		pthread_mutex_unlock(&philo->meal_lock);
-		timestamp = current_time_ms() - philo->data->start_time;
-	
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
+		mutex_update_last_meal_time(philo);
+		if (mutex_is_end(philo))
 		{
 			put_down_forks(philo);
 			break ;
 		}
-		printf("%lld %d is eating\n", timestamp, philo->id);
-
+		safe_print(philo, "is eating");
 		smart_sleep(philo->data->time_to_eat, philo);
-		//usleep(philo->data->time_to_eat * 1000);
 		put_down_forks(philo);
 
-		timestamp = current_time_ms() - philo->data->start_time;
-
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
+		if (mutex_is_end(philo))
 			break ;
-
-		printf("%lld %d is sleeping\n", timestamp, philo->id);
+		safe_print(philo, "is sleeping");
 		smart_sleep(philo->data->time_to_sleep, philo);
-		//usleep(philo->data->time_to_sleep * 1000);
-		timestamp = current_time_ms() - philo->data->start_time;
 
-		pthread_mutex_lock(&philo->data->end_mutex);
-		end_of_program = philo->data->end_of_program;
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		if (end_of_program)
+		if (mutex_is_end(philo))
 			break ;
-
-		printf("%lld %d is thinking\n", timestamp, philo->id);
+		safe_print(philo, "is thinking");
 	}
 	return (NULL);
 }
@@ -255,7 +254,6 @@ void	*routine(void *arg)
 void	*monitor(void *arg)
 {
 	t_data	*data;
-	long long	timestamp;
 	long long	last_meal_time;
 	int	i;
 
@@ -267,8 +265,7 @@ void	*monitor(void *arg)
 		pthread_mutex_lock(&data->end_mutex);
 		data->end_of_program = true;
 		pthread_mutex_unlock(&data->end_mutex);
-		timestamp = current_time_ms() - data->start_time;
-		printf("%lld %d died\n", timestamp, data->philo[i].id);
+		safe_print_die(&data->philo[i], "died");
 		return (NULL);
 	}
 	while (!data->end_of_program)
@@ -276,16 +273,11 @@ void	*monitor(void *arg)
 		i = 0;
 		while (i < data->nb_of_philo)
 		{
-			pthread_mutex_lock(&data->philo[i].meal_lock);
-			last_meal_time = data->philo[i].last_meal_time;
-			pthread_mutex_unlock(&data->philo[i].meal_lock);
+			last_meal_time = mutex_read_last_meal_time(&data->philo[i]);
 			if (current_time_ms() - last_meal_time > data->time_to_die)
 			{
-				pthread_mutex_lock(&data->end_mutex);
-				data->end_of_program = true;
-				pthread_mutex_unlock(&data->end_mutex);
-				timestamp = current_time_ms() - data->start_time;
-				printf("%lld %d died\n", timestamp, data->philo[i].id);
+				mutex_update_end_of_program(data);
+				safe_print_die(&data->philo[i], "died");
 				return (NULL);
 			}
 			i++;
