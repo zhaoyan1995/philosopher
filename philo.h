@@ -38,6 +38,7 @@ typedef	struct	s_philo
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	pthread_mutex_t	meal_lock;
+	int	nb_of_meal;
 	int	left_fork_id;
 	int	right_fork_id;
 	long long 	last_meal_time;
@@ -66,5 +67,5 @@ bool	mutex_is_end(t_philo *philo);
 void	mutex_update_last_meal_time(t_philo *philo);
 void	mutex_update_end_of_program(t_data *data);
 long long	mutex_read_last_meal_time(t_philo *philo);
-
+int	mutex_read_nb_of_eaten(t_philo *philo);
 #endif

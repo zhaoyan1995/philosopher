@@ -19,7 +19,7 @@ int	init_data(int argc, char **argv, t_data *data)
 		data->nb_of_eat = -1;
 	if (data->nb_of_philo <= 0)
 		return (0);
-	if (data->time_to_die <= 0 || data->time_to_eat <= 0 || data->time_to_sleep <= 0)
+	if (data->time_to_die <= 0 || data->time_to_eat <= 0 || data->time_to_sleep <= 0 || data->nb_of_eat == 0)
 		return (0);
 	data->start_time = current_time_ms();
 	data->end_of_program = false;
@@ -68,6 +68,7 @@ void	init_philo(t_data *data)
 		data->philo[i].right_fork = &data->fork[0];
 		data->philo[i].right_fork_id = data->nb_of_philo;
 		data->philo[i].last_meal_time = current_time_ms();
+		data->philo[i].nb_of_meal = 0;
 		data->philo[i].data = data;
 		return ;
 	}
@@ -89,6 +90,7 @@ void	init_philo(t_data *data)
 			data->philo[i].right_fork_id = data->philo[i].id + 1;
 		}
 		data->philo[i].last_meal_time = current_time_ms();
+		data->philo[i].nb_of_meal = 0;
 		data->philo[i].data = data;
 		i++;
 	}
@@ -128,8 +130,8 @@ void	safe_print(t_philo *philo, char *message)
 {
 	long long	timestamp;
 
-	timestamp = current_time_ms() - philo->data->start_time;
 	pthread_mutex_lock(&philo->data->print_mutex);
+	timestamp = current_time_ms() - philo->data->start_time;
 	if (!philo->data->end_of_program)
 		printf("%lld %d %s\n", timestamp, philo->id, message);
 	pthread_mutex_unlock(&philo->data->print_mutex);
@@ -139,24 +141,24 @@ void	safe_print_die(t_philo *philo, char *message)
 {
 	long long	timestamp;
 
-	timestamp = current_time_ms() - philo->data->start_time;
 	pthread_mutex_lock(&philo->data->print_mutex);
+	timestamp = current_time_ms() - philo->data->start_time;
 	if (philo->data->end_of_program)
 		printf("%lld %d %s\n", timestamp, philo->id, message);
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }
 
-void	take_forks(t_philo *philo)
+bool	take_forks(t_philo *philo)
 {
 	if (mutex_is_end(philo))
-		return ;
+		return (true);
 	if (philo->left_fork_id < philo->right_fork_id)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		if (mutex_is_end(philo))
 		{
 			pthread_mutex_unlock(philo->left_fork);
-			return ;
+			return (true);
 		}
 		safe_print(philo, "has taken a fork");
 
@@ -165,7 +167,7 @@ void	take_forks(t_philo *philo)
 		{
 			pthread_mutex_unlock(philo->left_fork);
 			pthread_mutex_unlock(philo->right_fork);
-			return ;
+			return (true);
 		}
 		safe_print(philo, "has taken a fork");
 	}
@@ -175,7 +177,7 @@ void	take_forks(t_philo *philo)
 		if (mutex_is_end(philo))
 		{
 			pthread_mutex_unlock(philo->right_fork);
-			return ;
+			return (true);
 		}
 		safe_print(philo, "has taken a fork");
 
@@ -184,10 +186,11 @@ void	take_forks(t_philo *philo)
 		{
 			pthread_mutex_unlock(philo->right_fork);
 			pthread_mutex_unlock(philo->left_fork);
-			return ;
+			return (true);
 		}
 		safe_print(philo, "has taken a fork");
 	}
+	return (false);
 }
 
 void	put_down_forks(t_philo *philo)
@@ -227,8 +230,9 @@ void	*routine(void *arg)
 	while (1)
 	{
 		if (mutex_is_end(philo))
-			break;
-		take_forks(philo);
+			break ;
+		if (take_forks(philo))
+			break ;
 		mutex_update_last_meal_time(philo);
 		if (mutex_is_end(philo))
 		{
@@ -249,6 +253,25 @@ void	*routine(void *arg)
 		safe_print(philo, "is thinking");
 	}
 	return (NULL);
+}
+
+bool	all_ate_enough(t_data *data)
+{
+	int	i;
+	int	eaten_times;
+
+	if (data->nb_of_eat == -1)
+		return (false);
+	i = 0;
+	while (i < data->nb_of_philo)
+	{
+		eaten_times = mutex_read_nb_of_eaten(&data->philo[i]);
+		if (eaten_times != data->nb_of_eat)
+			return (false) ;
+		i++;
+	}
+	mutex_update_end_of_program(data);
+	return (true);
 }
 
 void	*monitor(void *arg)
@@ -282,6 +305,8 @@ void	*monitor(void *arg)
 			}
 			i++;
 		}
+		if (all_ate_enough(data))
+			return (NULL);
 		usleep(500);
 	}
 	return (NULL);
