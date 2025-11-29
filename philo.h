@@ -71,6 +71,25 @@ void	assign_fork_to_philo(t_data *data, int i);
 void	init_single_philo(t_data *data);
 void	init_philo(t_data *data);
 
+//create_threads.c
+int		create_philo_thread(t_data *data);
+int		create_all_thread(t_data *data);
+int		join_all_thread(t_data *data);
+
+//philo_routine.c
+void	*routine(void *arg);
+void	smart_sleep(long long duration, t_philo *philo);
+void    safe_print(t_philo *philo, char *message);
+
+//philo_eating.c
+bool	even_philo_take_forks(t_philo *philo);
+bool	odd_philo_take_forks(t_philo *philo);
+bool	take_forks(t_philo *philo);
+void	put_down_forks(t_philo *philo);
+
+//monitor.c
+void	*monitor(void *arg);
+
 //get_time.c
 long long	current_time_ms(void);
 
@@ -80,4 +99,9 @@ void	mutex_update_last_meal_time(t_philo *philo);
 void	mutex_update_end_of_program(t_data *data);
 long long	mutex_read_last_meal_time(t_philo *philo);
 int	mutex_read_nb_of_eaten(t_philo *philo);
+
+//clean_up_data.c
+void	destroy_data(t_data *data);
+void	destroy_mutex(t_data *data);
+
 #endif
