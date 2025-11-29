@@ -59,6 +59,18 @@ bool	safe_atoi(char *argv, int *output);
 bool	safe_atoll(char *argv, long long *output);
 bool	is_llong_overflow(char *argv);
 
+//init_data.c
+int		init_data(int argc, char **argv, t_data *data);
+int		alloc_data(t_data *data);
+
+//init_mutex.c
+void	init_all_mutex(t_data *data);
+
+//init_philo_struct.c
+void	assign_fork_to_philo(t_data *data, int i);
+void	init_single_philo(t_data *data);
+void	init_philo(t_data *data);
+
 //get_time.c
 long long	current_time_ms(void);
 
