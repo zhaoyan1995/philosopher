@@ -4,8 +4,8 @@ void	safe_print_die(t_philo *philo, char *message)
 {
 	long long	timestamp;
 
-	pthread_mutex_lock(&philo->data->print_mutex);
 	timestamp = current_time_ms() - philo->data->start_time;
+	pthread_mutex_lock(&philo->data->print_mutex);
 	if (philo->data->end_of_program)
 		printf("%lld %d %s\n", timestamp, philo->id, message);
 	pthread_mutex_unlock(&philo->data->print_mutex);
@@ -37,20 +37,12 @@ void	*monitor(void *arg)
 	int	i;
 
 	data = (t_data *)arg;
-	if (data->nb_of_philo == 1)
+	while (!mutex_read_all_threads_ready(data) && !data->end_of_program)
+		usleep(100);
+	while (!mutex_is_end(data))
 	{
 		i = 0;
-		usleep(data->time_to_die * 1000);
-		pthread_mutex_lock(&data->end_mutex);
-		data->end_of_program = true;
-		pthread_mutex_unlock(&data->end_mutex);
-		safe_print_die(&data->philo[i], "died");
-		return (NULL);
-	}
-	while (!data->end_of_program)
-	{
-		i = 0;
-		while (i < data->nb_of_philo)
+		while (i < data->nb_of_philo && !mutex_is_end(data))
 		{
 			last_meal_time = mutex_read_last_meal_time(&data->philo[i]);
 			if (current_time_ms() - last_meal_time > data->time_to_die)

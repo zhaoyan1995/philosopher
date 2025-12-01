@@ -1,13 +1,32 @@
 #include "philo.h"
 
+//create_thread
+void	mutex_update_ready_mutex(t_data *data)
+{
+	pthread_mutex_lock(&data->ready_mutex);
+	data->all_threads_ready = true;
+	pthread_mutex_unlock(&data->ready_mutex);
+}
+
 //routine
-bool	mutex_is_end(t_philo *philo)
+bool	mutex_read_all_threads_ready(t_data *data)
+{
+	bool	all_threads_ready;
+
+	pthread_mutex_lock(&data->ready_mutex);
+	all_threads_ready = data->all_threads_ready;
+	pthread_mutex_unlock(&data->ready_mutex);
+	return (all_threads_ready);
+}
+
+//routine
+bool	mutex_is_end(t_data *data)
 {
 	bool	end_of_program;
 
-	pthread_mutex_lock(&philo->data->end_mutex);
-	end_of_program = philo->data->end_of_program;
-	pthread_mutex_unlock(&philo->data->end_mutex);
+	pthread_mutex_lock(&data->end_mutex);
+	end_of_program = data->end_of_program;
+	pthread_mutex_unlock(&data->end_mutex);
 	return (end_of_program);
 }
 

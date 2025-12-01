@@ -6,7 +6,7 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 19:15:20 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/11/29 19:16:29 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/01 17:44:46 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,12 @@ int	init_data(int argc, char **argv, t_data *data)
 	if (data->time_to_die <= 0 || data->time_to_eat <= 0
 		|| data->time_to_sleep <= 0 || data->nb_of_eat == 0)
 		return (0);
-	data->start_time = current_time_ms();
+	if (data->time_to_eat < data->time_to_sleep)
+		data->time_to_think = 0;
+	else
+		data->time_to_think = (data->time_to_die - data->time_to_sleep - data->time_to_eat) / 2;
 	data->end_of_program = false;
+	data->all_threads_ready = false;
 	return (1);
 }
 

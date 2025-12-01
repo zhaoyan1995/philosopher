@@ -6,7 +6,7 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 19:06:01 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/11/29 19:13:20 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/11/29 23:24:47 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ void	init_single_philo(t_data *data)
 	data->philo[0].left_fork_id = data->nb_of_philo;
 	data->philo[0].right_fork = &data->fork[0];
 	data->philo[0].right_fork_id = data->nb_of_philo;
-	data->philo[0].last_meal_time = current_time_ms();
 	data->philo[0].nb_of_meal = 0;
 	data->philo[0].data = data;
 }
@@ -55,7 +54,6 @@ void	init_philo(t_data *data)
 		{
 			data->philo[i].id = i + 1;
 			assign_fork_to_philo(data, i);
-			data->philo[i].last_meal_time = current_time_ms();
 			data->philo[i].nb_of_meal = 0;
 			data->philo[i].data = data;
 			i++;

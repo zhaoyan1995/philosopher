@@ -22,10 +22,13 @@ typedef	struct	s_data
 	long long	time_to_die;
 	long long	time_to_eat;
 	long long	time_to_sleep;
+	long long	time_to_think;
 	long long	start_time;
+	bool	all_threads_ready;
 	bool	end_of_program;
 	t_philo *philo;
 	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	ready_mutex;
 	pthread_mutex_t	end_mutex;
 	pthread_mutex_t	*fork;
 	pthread_t	*philo_th;
@@ -77,6 +80,7 @@ int		create_all_thread(t_data *data);
 int		join_all_thread(t_data *data);
 
 //philo_routine.c
+void	*solo_philo_routine(void *arg);
 void	*routine(void *arg);
 void	smart_sleep(long long duration, t_philo *philo);
 void    safe_print(t_philo *philo, char *message);
@@ -94,11 +98,13 @@ void	*monitor(void *arg);
 long long	current_time_ms(void);
 
 //check_end_of_program.c
-bool	mutex_is_end(t_philo *philo);
+bool	mutex_is_end(t_data *data);
 void	mutex_update_last_meal_time(t_philo *philo);
 void	mutex_update_end_of_program(t_data *data);
 long long	mutex_read_last_meal_time(t_philo *philo);
 int	mutex_read_nb_of_eaten(t_philo *philo);
+void	mutex_update_ready_mutex(t_data *data);
+bool	mutex_read_all_threads_ready(t_data *data);
 
 //clean_up_data.c
 void	destroy_data(t_data *data);
