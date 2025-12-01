@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/01 22:12:43 by yanzhao           #+#    #+#             */
+/*   Updated: 2025/12/01 22:12:45 by yanzhao          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	ft_put_str(char *str, int fd)
@@ -8,6 +20,14 @@ void	ft_put_str(char *str, int fd)
 	if (len_str == 0)
 		return ;
 	write(fd, str, len_str);
+}
+
+void	print_err_msg(void)
+{
+	ft_put_str("Usage: ", 2);
+	ft_put_str("./philo ", 2);
+	ft_put_str("num_philo time_to_die time_to_eat time_to_sleep", 2);
+	ft_put_str("[num_must_eat]\n", 2);
 }
 
 //debug
@@ -25,7 +45,7 @@ int	main(int argc, char **argv)
 
 	if (argc != 5 && argc != 6)
 	{
-		ft_put_str("Usage: ./philo num_philo time_to_die time_to_eat time_to_sleep [num_must_eat]\n", 2);
+		print_err_msg();
 		return (1);
 	}
 	if (!check_argv(argc, argv))

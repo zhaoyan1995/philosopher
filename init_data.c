@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-int	init_data(int argc, char **argv, t_data *data)
+int	init_constant_data(int argc, char **argv, t_data *data)
 {
 	if (!safe_atoi(argv[1], &data->nb_of_philo))
 		return (0);
@@ -29,6 +29,13 @@ int	init_data(int argc, char **argv, t_data *data)
 	}
 	else
 		data->nb_of_eat = -1;
+	return (1);
+}
+
+int	init_data(int argc, char **argv, t_data *data)
+{
+	if (!init_constant_data(argc, argv, data))
+		return (0);
 	if (data->nb_of_philo <= 0)
 		return (0);
 	if (data->time_to_die <= 0 || data->time_to_eat <= 0
@@ -37,7 +44,8 @@ int	init_data(int argc, char **argv, t_data *data)
 	if (data->time_to_eat < data->time_to_sleep)
 		data->time_to_think = 0;
 	else
-		data->time_to_think = (data->time_to_die - data->time_to_sleep - data->time_to_eat) / 2;
+		data->time_to_think = (data->time_to_die
+				- data->time_to_sleep - data->time_to_eat) / 2;
 	data->end_of_program = false;
 	data->all_threads_ready = false;
 	return (1);

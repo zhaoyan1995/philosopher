@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/01 22:58:20 by yanzhao           #+#    #+#             */
+/*   Updated: 2025/12/01 22:58:21 by yanzhao          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	ft_strlen(char *str)
@@ -26,15 +38,27 @@ bool	is_int_overflow(char *argv)
 		if (argv[i] > INT_MAX_STR[i])
 			return (true);
 		i++;
-	} 
+	}
 	return (false);
+}
+
+int	fill_result_int(char *argv)
+{
+	int		result;
+	int		i;
+
+	i = 0;
+	result = 0;
+	while (argv[i])
+	{
+		result = result * 10 + (argv[i] - '0');
+		i++;
+	}
+	return (result);
 }
 
 bool	safe_atoi(char *argv, int *output)
 {
-	int	i;
-	int	result;
-
 	while (*argv == ' ')
 		argv++;
 	if (*argv == '-')
@@ -52,13 +76,6 @@ bool	safe_atoi(char *argv, int *output)
 		return (false);
 	if (is_int_overflow(argv))
 		return (false);
-	i = 0;
-	result = 0;
-	while (argv[i])
-	{
-		result = result  * 10 + (argv[i] - '0');
-		i++;
-	}
-	*output = result;
+	*output = fill_result_int(argv);
 	return (true);
 }

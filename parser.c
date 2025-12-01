@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/01 22:11:20 by yanzhao           #+#    #+#             */
+/*   Updated: 2025/12/01 22:11:22 by yanzhao          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-bool    is_all_zero(char *argv)
+bool	is_all_zero(char *argv)
 {
-	int     i;
+	int	i;
 
 	i = 0;
 	while (argv[i])
@@ -47,5 +59,3 @@ int	check_argv(int argc, char **argv)
 	}
 	return (1);
 }
-
-

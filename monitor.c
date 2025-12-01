@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/01 22:18:04 by yanzhao           #+#    #+#             */
+/*   Updated: 2025/12/01 22:18:09 by yanzhao          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	safe_print_die(t_philo *philo, char *message)
@@ -23,7 +35,7 @@ bool	all_ate_enough(t_data *data)
 	{
 		eaten_times = mutex_read_nb_of_eaten(&data->philo[i]);
 		if (eaten_times != data->nb_of_eat)
-			return (false) ;
+			return (false);
 		i++;
 	}
 	mutex_update_end_of_program(data);
@@ -32,17 +44,17 @@ bool	all_ate_enough(t_data *data)
 
 void	*monitor(void *arg)
 {
-	t_data	*data;
+	t_data		*data;
 	long long	last_meal_time;
-	int	i;
+	int			i;
 
 	data = (t_data *)arg;
 	while (!mutex_read_all_threads_ready(data) && !data->end_of_program)
 		usleep(100);
 	while (!mutex_is_end(data))
 	{
-		i = 0;
-		while (i < data->nb_of_philo && !mutex_is_end(data))
+		i = -1;
+		while (i++, i < data->nb_of_philo && !mutex_is_end(data))
 		{
 			last_meal_time = mutex_read_last_meal_time(&data->philo[i]);
 			if (current_time_ms() - last_meal_time > data->time_to_die)
@@ -51,7 +63,6 @@ void	*monitor(void *arg)
 				safe_print_die(&data->philo[i], "died");
 				return (NULL);
 			}
-			i++;
 		}
 		if (all_ate_enough(data))
 			return (NULL);
