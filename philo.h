@@ -6,7 +6,7 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 21:31:02 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/01 21:31:05 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/04 17:54:08 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,10 @@ void		*monitor(void *arg);
 
 //get_time.c
 long long	current_time_ms(void);
+
+//safe_print.c
+void		safe_print_die(t_philo *philo, char *message);
+void		safe_print(t_philo *philo, char *message);
 
 //update_value_mutex.c
 void		mutex_update_last_meal_time(t_philo *philo);

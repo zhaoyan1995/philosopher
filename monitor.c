@@ -6,22 +6,11 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 22:18:04 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/01 22:18:09 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/04 00:13:17 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	safe_print_die(t_philo *philo, char *message)
-{
-	long long	timestamp;
-
-	timestamp = current_time_ms() - philo->data->start_time;
-	pthread_mutex_lock(&philo->data->print_mutex);
-	if (philo->data->end_of_program)
-		printf("%lld %d %s\n", timestamp, philo->id, message);
-	pthread_mutex_unlock(&philo->data->print_mutex);
-}
 
 bool	all_ate_enough(t_data *data)
 {

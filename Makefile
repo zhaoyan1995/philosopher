@@ -3,7 +3,7 @@ NAME = philo
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -pthread -g
 
-SRCS = get_time.c parser.c parser_utils.c parser_utils2.c init_data.c init_mutex.c clean_up_data.c init_philo_struct.c main.c philo_routine.c philo_eating.c monitor.c create_threads.c update_value_mutex.c read_value_mutex.c
+SRCS = get_time.c parser.c parser_utils.c parser_utils2.c init_data.c init_mutex.c clean_up_data.c init_philo_struct.c main.c philo_routine.c philo_eating.c monitor.c create_threads.c update_value_mutex.c read_value_mutex.c safe_print.c
 
 OBJS = $(SRCS:.c=.o)
 

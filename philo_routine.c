@@ -6,37 +6,32 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 22:40:10 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/01 22:40:12 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/04 22:19:51 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	safe_print(t_philo *philo, char *message)
-{
-	long long	timestamp;
-	bool		is_end;
-
-	timestamp = current_time_ms() - philo->data->start_time;
-	pthread_mutex_lock(&philo->data->print_mutex);
-	pthread_mutex_lock(&philo->data->end_mutex);
-	is_end = philo->data->end_of_program;
-	if (is_end == false)
-		printf("%lld %d %s\n", timestamp, philo->id, message);
-	pthread_mutex_unlock(&philo->data->end_mutex);
-	pthread_mutex_unlock(&philo->data->print_mutex);	
-}
-
 void	smart_sleep(long long duration, t_philo *philo)
 {
 	long long	start;
+	long long	escape;
+	long long	remain;
 
+	if (duration == 0)
+		return ;
 	start = current_time_ms();
 	while (current_time_ms() - start < duration)
 	{
 		if (mutex_is_end(philo->data))
 			return ;
-		usleep(500);
+		escape = current_time_ms() - start ;
+		remain = duration - escape;
+		if (remain > 1000)
+			usleep(remain / 2);
+		else
+			while (current_time_ms() - start < duration)
+				;
 	}
 }
 
@@ -68,6 +63,8 @@ void	*solo_philo_routine(void *arg)
 
 int	eating(t_philo *philo)
 {
+	if (mutex_read_nb_of_eaten(philo) == philo->data->nb_of_eat)
+		return (0);
 	if (mutex_is_end(philo->data))
 		return (0);
 	if (take_forks(philo))
@@ -84,15 +81,20 @@ int	eating(t_philo *philo)
 	return (1);
 }
 
+void	prepare_routine(t_philo *philo)
+{
+	while (!mutex_read_all_threads_ready(philo->data))
+		usleep(100);
+	//if (philo->id % 2 == 0)
+		//usleep(500);
+}
+
 void	*routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (!mutex_read_all_threads_ready(philo->data))
-		usleep(100);
-	if (philo->id % 2 == 0)
-		usleep(100);
+	prepare_routine(philo);
 	while (1)
 	{
 		if (!eating(philo))
