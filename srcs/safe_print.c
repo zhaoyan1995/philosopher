@@ -6,7 +6,7 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 22:40:10 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/05 01:16:34 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/05 17:27:17 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ void	safe_print_die(t_philo *philo, char *message)
 {
 	long long	timestamp;
 
-	timestamp = current_time_ms() - philo->data->start_time;
 	pthread_mutex_lock(&philo->data->print_mutex);
+	timestamp = current_time_ms() - philo->data->start_time;
 	printf("%lld %d %s\n", timestamp, philo->id, message);
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }
