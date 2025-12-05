@@ -6,34 +6,11 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 22:40:10 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/05 01:54:13 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/05 14:30:16 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-/*void	smart_sleep(long long duration, t_philo *philo)
-{
-	long long	start;
-	long long	escape;
-	long long	remain;
-
-	if (duration == 0)
-		return ;
-	start = current_time_ms();
-	while (current_time_ms() - start < duration)
-	{
-		if (mutex_is_end(philo->data))
-			return ;
-		escape = current_time_ms() - start ;
-		remain = duration - escape;
-		if (remain > 1000)
-			usleep(remain / 2);
-		else
-			while (current_time_ms() - start < duration)
-				;
-	}
-}*/
 
 void	smart_sleep(long long duration, t_philo *philo)
 {
@@ -47,7 +24,7 @@ void	smart_sleep(long long duration, t_philo *philo)
 			return ;
 		now = current_time_ms();
 		if (now - start >= duration)
-			break;
+			break ;
 		usleep(200);
 	}
 }
