@@ -6,13 +6,13 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 22:40:10 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/04 22:19:51 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/05 01:54:13 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	smart_sleep(long long duration, t_philo *philo)
+/*void	smart_sleep(long long duration, t_philo *philo)
 {
 	long long	start;
 	long long	escape;
@@ -32,6 +32,23 @@ void	smart_sleep(long long duration, t_philo *philo)
 		else
 			while (current_time_ms() - start < duration)
 				;
+	}
+}*/
+
+void	smart_sleep(long long duration, t_philo *philo)
+{
+	long long	start;
+	long long	now;
+
+	start = current_time_ms();
+	while (1)
+	{
+		if (mutex_is_end(philo->data))
+			return ;
+		now = current_time_ms();
+		if (now - start >= duration)
+			break;
+		usleep(200);
 	}
 }
 
@@ -85,8 +102,16 @@ void	prepare_routine(t_philo *philo)
 {
 	while (!mutex_read_all_threads_ready(philo->data))
 		usleep(100);
-	//if (philo->id % 2 == 0)
-		//usleep(500);
+	if (philo->data->nb_of_philo % 2 == 0)
+	{
+		if (philo->id % 2 == 0)
+			usleep(300);
+	}
+	else
+	{
+		if (philo->id % 2 == 0)
+			smart_sleep(philo->data->time_to_think, philo);
+	}
 }
 
 void	*routine(void *arg)
@@ -95,11 +120,10 @@ void	*routine(void *arg)
 
 	philo = (t_philo *)arg;
 	prepare_routine(philo);
+	philo->last_meal_time = mutex_read_last_meal_time(philo);
 	while (1)
 	{
 		if (!eating(philo))
-			break ;
-		if (mutex_is_end(philo->data))
 			break ;
 		safe_print(philo, "is sleeping");
 		smart_sleep(philo->data->time_to_sleep, philo);

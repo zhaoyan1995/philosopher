@@ -6,7 +6,7 @@
 /*   By: yanzhao <yanzhao@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 19:15:20 by yanzhao           #+#    #+#             */
-/*   Updated: 2025/12/04 21:58:18 by yanzhao          ###   ########.fr       */
+/*   Updated: 2025/12/05 01:18:37 by yanzhao          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ int	init_data(int argc, char **argv, t_data *data)
 		data->time_to_think = 0;
 	else
 		data->time_to_think *= 0.42;
-	printf("data->time_to_think = %lld\n", data->time_to_think);
 	data->end_of_program = false;
 	data->all_threads_ready = false;
 	return (1);
